@@ -13,52 +13,129 @@ import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 
+// Connect to MongoDB
 connectDB();
 
 const app = express();
 
-// ── Core middleware ──────────────────────────────────────────────
-app.use(express.json({ limit: "10mb" })); // 10mb to comfortably fit base64 product images
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// ======================================================
+// MIDDLEWARE
+// ======================================================
 
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+// Parse JSON
+app.use(express.json({ limit: "10mb" }));
+
+// Parse URL-encoded data
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "10mb",
+  })
+);
+
+// ======================================================
+// CORS
+// ======================================================
+
+const allowedOrigins = (
+  process.env.CORS_ORIGIN ||
+  "http://localhost:5173,https://mern-metallic-crafts-git-main-aman-9df7.vercel.app"
+)
   .split(",")
-  .map((origin) => origin.trim());
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow tools like Postman/curl (no origin header) and any whitelisted origin.
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow Postman, curl, server-to-server requests
+      if (!origin) {
         return callback(null, true);
       }
-      return callback(new Error("Not allowed by CORS"));
+
+      // Allow only registered frontend URLs
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("❌ CORS blocked:", origin);
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
+
     credentials: true,
+
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Origin",
+      "Accept",
+      "X-Requested-With",
+    ],
   })
 );
+
+// Handle preflight requests
+app.options("*", cors());
+
+// ======================================================
+// LOGGER
+// ======================================================
 
 if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
 
-// ── Health check ─────────────────────────────────────────────────
+// ======================================================
+// HEALTH CHECK
+// ======================================================
+
 app.get("/api/health", (req, res) => {
-  res.status(200).json({ success: true, data: { status: "ok" } });
+  res.status(200).json({
+    success: true,
+    data: {
+      status: "ok",
+      message: "Metallic Crafts API is running",
+    },
+  });
 });
 
-// ── API routes ───────────────────────────────────────────────────
+// ======================================================
+// API ROUTES
+// ======================================================
+
 app.use("/api/auth", authRoutes);
+
 app.use("/api/products", productRoutes);
+
 app.use("/api/orders", orderRoutes);
+
 app.use("/api/cart", cartRoutes);
 
-// ── 404 + error handling (must be registered last) ──────────────
+// ======================================================
+// 404 HANDLER
+// ======================================================
+
 app.use(notFound);
+
+// ======================================================
+// GLOBAL ERROR HANDLER
+// ======================================================
+
 app.use(errorHandler);
+
+// ======================================================
+// SERVER
+// ======================================================
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log("🌐 Allowed CORS origins:");
+  allowedOrigins.forEach((origin) => {
+    console.log(`   ✅ ${origin}`);
+  });
 });
