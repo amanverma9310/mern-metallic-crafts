@@ -44,6 +44,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }) {
           <input
             id="loginEmail"
             type="email"
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -55,6 +56,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }) {
           <input
             id="loginPassword"
             type="password"
+            autoComplete="current-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

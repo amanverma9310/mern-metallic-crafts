@@ -45,6 +45,25 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Vercel gives every branch/PR preview deployment its own URL
+// (e.g. mern-metallic-crafts-git-main-aman-9df7.vercel.app,
+// mern-metallic-crafts-abc123.vercel.app, etc). Hardcoding one exact
+// preview URL breaks the next time Vercel generates a new one, so on
+// top of the explicit allow-list above we also allow any *.vercel.app
+// origin belonging to this project by matching its name prefix.
+const VERCEL_PROJECT_PREFIX = "mern-metallic-crafts";
+const isAllowedVercelPreview = (origin) => {
+  try {
+    const { hostname } = new URL(origin);
+    return (
+      hostname.endsWith(".vercel.app") &&
+      hostname.startsWith(VERCEL_PROJECT_PREFIX)
+    );
+  } catch {
+    return false;
+  }
+};
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -53,8 +72,8 @@ app.use(
         return callback(null, true);
       }
 
-      // Allow only registered frontend URLs
-      if (allowedOrigins.includes(origin)) {
+      // Allow registered frontend URLs, and any preview URL for this project
+      if (allowedOrigins.includes(origin) || isAllowedVercelPreview(origin)) {
         return callback(null, true);
       }
 

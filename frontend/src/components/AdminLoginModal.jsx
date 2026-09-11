@@ -42,6 +42,7 @@ export default function AdminLoginModal({ isOpen, onClose }) {
           <input
             id="adminEmail"
             type="email"
+            autoComplete="email"
             placeholder="admin@clockstore.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -53,6 +54,7 @@ export default function AdminLoginModal({ isOpen, onClose }) {
           <input
             id="adminPassword"
             type="password"
+            autoComplete="current-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

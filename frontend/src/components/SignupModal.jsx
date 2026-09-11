@@ -48,6 +48,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }) {
           <input
             id="signupName"
             type="text"
+            autoComplete="name"
             placeholder="John Doe"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -59,6 +60,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }) {
           <input
             id="signupEmail"
             type="email"
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -70,6 +72,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }) {
           <input
             id="signupPassword"
             type="password"
+            autoComplete="new-password"
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -81,6 +84,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }) {
           <input
             id="signupConfirmPassword"
             type="password"
+            autoComplete="new-password"
             placeholder="••••••••"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
